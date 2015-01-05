@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  video(autoplay)#cam
+  script(charset="utf-8").
+    var ws = new WebSocket("ws://"+window.location.host);
+    var video = document.getElementById("cam");
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    navigator.getUserMedia = navigator.getUserMedia || 
+                         navigator.webkitGetUserMedia ||
+                         navigator.mozGetUserMedia ||
+                         navigator.msGetUserMedia;
+    window.URL = window.URL || 
+                 window.webkitURL || 
+                 window.mozURL || 
+                 window.mosURL;
+    navigator.getUserMedia({video:true,audio:false},function(stream){
+      video.src= window.URL.createObjectURL(stream) || stream;
+    });
+    
+    function takeSnapShot()
+    

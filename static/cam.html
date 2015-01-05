@@ -1,0 +1,53 @@
+<html>
+	<head>
+        <title>Security Cam</title>
+		<script type="text/javascript" src="/javascripts/canvas-toBlob.js"></script>
+	</head>
+	<body>
+		<h1>Security Cam</h1>
+		<video id="cam" autoplay></video>
+	</body>
+	<script>
+    	var ws = new WebSocket("ws://"+window.location.host+"/cam");
+        var video = document.getElementById("cam");
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        
+        navigator.getUserMedia = navigator.getUserMedia || 
+                                 navigator.webkitGetUserMedia ||
+                                 navigator.mozGetUserMedia ||
+                                 navigator.msGetUserMedia;
+        window.URL = window.URL || 
+                     window.webkitURL || 
+                     window.mozURL || 
+                     window.mosURL;
+
+        navigator.getUserMedia({video:true, audio:false}, function(stream){
+            
+            if(navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+                video.src = window.URL.createObjectURL(stream) || stream;
+            else
+                video.src = stream;
+  
+            setInterval(takeSnapShot,500);
+
+        }, function(){
+            ws.close();
+            console.log("Zugriff auf getUserMedia verweigert")
+        });
+        
+        function takeSnapShot(){
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        	ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        	canvas.toBlob(function(blob) {
+        		ws.send(blob)
+     		});
+        }
+
+        ws.onclose = function(evt){
+        	console.log(evt.reason);
+        	console.log(evt.code);
+        }
+	</script>
+</html>

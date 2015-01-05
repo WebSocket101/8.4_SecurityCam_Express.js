@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<title>Watch Security Cam</title>
+	</head>
+	<body>
+		<h1>Watch Security Cam</h1>
+		<img id="watch" src="/images/cam.png"/>
+	</body>
+	<script>
+		var ws = new WebSocket("ws://"+window.location.host+"/watch");
+		var img = document.getElementById("watch");
+		
+		window.URL = window.URL || 
+                 	 window.webkitURL || 
+                     window.mozURL || 
+                     window.mosURL;
+		
+		ws.onmessage = function(evt){
+			if(evt.data == "close"){
+				img.src="/images/cam.png";
+				return;
+			}
+			
+			window.URL.revokeObjectURL(img.src);
+       		img.src = window.URL.createObjectURL(evt.data);
+       		
+		}
+	</script>
+</html>
